@@ -91,6 +91,11 @@ module GT
       config_unset("branch.#{branch}.gt-fork-point")
     end
 
+    def all_branches
+      out, _, _ = Open3.capture3("git", "branch")
+      out.strip.split("\n").map { |b| b.delete_prefix("* ").strip }
+    end
+
     def git_dir
       run("git rev-parse --git-dir").strip
     end
