@@ -1,8 +1,6 @@
 source "https://rubygems.org"
 
-ruby "4.0.1"
-
-gem "rake"
+gemspec
 
 group :test do
   gem "minitest", "~> 5.25"

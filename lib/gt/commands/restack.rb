@@ -15,13 +15,40 @@ module GT
         end
 
         branches = GT::Stack.build_all
+        maybe_delete_merged(branches)
+        branches = GT::Stack.build_all
         restack_from(branches, 1, state)
+      end
+
+      def self.maybe_delete_merged(branches)
+        return if branches.length < 2
+
+        bottom = branches[1]
+        return unless GT::GitHub.pr_merged?(bottom)
+
+        return unless GT::UI.confirm("PR '#{bottom}' was merged. Delete branch and restack?")
+
+        child = branches[2]
+        if child
+          fork_point = GT::Git.gt_fork_point(child)
+          GT::GitHub.pr_retarget(child, branches[0])
+          GT::Git.checkout(child)
+          GT::Git.rebase_onto(branches[0], fork_point, child)
+          GT::Git.set_gt_parent(child, branches[0])
+          GT::Git.set_gt_fork_point(child, GT::Git.rev_parse(branches[0]))
+          GT::Git.push(child, force: true)
+        end
+
+        GT::Git.checkout(branches[0])
+        GT::Git.run("git branch -D #{bottom}")
+        GT::Git.unset_gt_meta(bottom)
+        GT::UI.success("Deleted #{bottom}.")
       end
 
       def self.handle_abort(state)
         GT::Git.rebase_abort if GT::Git.rebase_in_progress?
         state.clear
-        puts "Restack aborted."
+        GT::UI.info("Restack aborted.")
       end
 
       def self.handle_continue(state)
@@ -50,23 +77,27 @@ module GT
           GT::Git.checkout(branch)
 
           begin
-            GT::Git.rebase_onto(parent, fork_point, branch)
-          rescue GT::GitError
+            GT::UI.spinner("Rebasing #{branch} onto #{parent}") do
+              GT::Git.rebase_onto(parent, fork_point, branch)
+            end
+          rescue GT::GitError => e
+            raise GT::UserError, "Please commit or stash your changes before restacking." if e.message.include?("unstaged changes")
+
             new_fork_point = GT::Git.rev_parse(parent)
             state.save(branches: branches, index: i, pending_fork_point: new_fork_point)
-            puts "Conflict on #{branch}. Resolve and run `gt restack --continue`."
+            GT::UI.warn("Conflict on #{branch}. Resolve and run `gt restack --continue`.")
             return
           end
 
           GT::Git.set_gt_fork_point(branch, GT::Git.rev_parse(parent))
-          GT::Git.push(branch, force: true)
+          GT::UI.spinner("Pushing #{branch}") { GT::Git.push(branch, force: true) }
         end
 
         state.clear
-        puts "Restack complete."
+        GT::UI.success("Restack complete.")
       end
 
-      private_class_method :handle_abort, :handle_continue, :restack_from
+      private_class_method :handle_abort, :handle_continue, :restack_from, :maybe_delete_merged
     end
   end
 end

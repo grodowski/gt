@@ -42,8 +42,11 @@ module GT
       branches = build(from: from)
       branches.each_with_index do |branch, i|
         prefix = i == 0 ? "" : ("  " * i) + "└─ "
-        marker = branch == current ? " *" : ""
-        output.puts "#{prefix}#{branch}#{marker}"
+        if branch == current
+          output.puts GT::UI.render("#{prefix}{{green:#{branch} *}}")
+        else
+          output.puts "#{prefix}#{branch}"
+        end
       end
     end
   end

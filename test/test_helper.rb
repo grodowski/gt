@@ -17,6 +17,8 @@ require "tmpdir"
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "gt"
 
+CLI::UI.enable_color = false
+
 module GitSandbox
   def setup
     @tmpdir = Dir.mktmpdir("gt-test-")

@@ -80,4 +80,10 @@ class RestackConflictTest < Minitest::Test
     out, = capture_io { GT::Commands::Restack.run(["--abort"]) }
     assert_match "Restack aborted", out
   end
+
+  def test_unstaged_changes_raises_user_error
+    GT::Git.stub(:rebase_onto, -> (*) { raise GT::GitError, "error: cannot rebase: You have unstaged changes." }) do
+      assert_raises(GT::UserError) { GT::Commands::Restack.run([]) }
+    end
+  end
 end
