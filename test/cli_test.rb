@@ -19,10 +19,6 @@ class CLITest < Minitest::Test
     capture_io { GT::CLI.run(["stack"]) }
   end
 
-  def test_land_dispatches
-    capture_io { assert_raises(SystemExit) { GT::CLI.run(["land"]) } }
-  end
-
   def test_git_error_exits_2
     GT::State.stub(:new, -> { raise GT::GitError, "broken" }) do
       ex = nil
@@ -40,7 +36,42 @@ class CLITest < Minitest::Test
 
   def test_restack_allowed_when_state_active
     GT::State.new.save(branches: ["feature"], index: 0)
-    capture_io { GT::CLI.run(["restack"]) }
+    GT::GitHub.stub(:pr_merged?, false) do
+      capture_io { GT::CLI.run(["restack"]) }
+    end
+  end
+
+  def test_amend_dispatches
+    capture_io { assert_raises(SystemExit) { GT::CLI.run(["amend"]) } }
+  end
+
+  def test_sync_dispatches
+    GT::GitHub.stub(:pr_merged?, false) do
+      GT::Git.stub(:pull, nil) do
+        capture_io { GT::CLI.run(["sync"]) }
+      end
+    end
+  end
+
+  def test_edit_dispatches
+    capture_io { assert_raises(SystemExit) { GT::CLI.run(["edit"]) } }
+  end
+
+  def test_up_dispatches
+    capture_io { assert_raises(SystemExit) { GT::CLI.run(["up"]) } }
+  end
+
+  def test_down_dispatches
+    capture_io { assert_raises(SystemExit) { GT::CLI.run(["down"]) } }
+  end
+
+  def test_top_dispatches
+    out, = capture_io { GT::CLI.run(["top"]) }
+    assert_match "Already at the top", out
+  end
+
+  def test_switch_dispatches
+    capture_io { assert_raises(SystemExit) { GT::CLI.run(["switch"]) } }
   end
 
   def test_help_flag

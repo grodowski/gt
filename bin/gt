@@ -5,4 +5,5 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
 require "gt"
 
+CLI::UI::StdoutRouter.enable
 GT::CLI.run(ARGV)

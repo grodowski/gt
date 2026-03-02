@@ -16,15 +16,16 @@ module GT
         parent = GT::Git.current_branch
         fork_point = GT::Git.rev_parse("HEAD")
 
-        GT::Git.add_all
-        GT::Git.checkout(name, new_branch: true)
-        GT::Git.commit(message)
+        GT::UI.spinner("Creating branch #{name}") do
+          GT::Git.add_all
+          GT::Git.checkout(name, new_branch: true)
+          GT::Git.commit(message)
+          GT::Git.set_gt_parent(name, parent)
+          GT::Git.set_gt_fork_point(name, fork_point)
+          GT::Git.push(name)
+        end
 
-        GT::Git.set_gt_parent(name, parent)
-        GT::Git.set_gt_fork_point(name, fork_point)
-
-        GT::Git.push(name)
-
+        GT::UI.info("Opening PR for {{bold:#{name}}} → {{bold:#{parent}}}")
         system("gh pr create --base #{parent} --head #{name} --fill")
       end
     end

@@ -116,4 +116,46 @@ class GitTest < Minitest::Test
     log = `git log --oneline`.strip.split("\n").map { _1.split(" ", 2).last }
     assert_equal ["C", "init"], log
   end
+
+  def test_main_branch_defaults_to_main
+    assert_equal "main", GT::Git.main_branch
+  end
+
+  def test_main_branch_reads_from_config
+    GT::Git.config_set("gt.main-branch", "trunk")
+    assert_equal "trunk", GT::Git.main_branch
+  end
+
+  def test_amend_no_edit
+    write_file("a.txt")
+    GT::Git.add_all
+    GT::Git.commit("original")
+    write_file("b.txt")
+    GT::Git.add_all
+    GT::Git.amend
+    log = `git log --oneline`.strip.split("\n").map { _1.split(" ", 2).last }
+    assert_equal ["original", "init"], log
+    assert File.exist?("b.txt")
+  end
+
+  def test_amend_with_message
+    write_file("a.txt")
+    GT::Git.add_all
+    GT::Git.commit("original")
+    GT::Git.amend(message: "updated")
+    log = `git log --oneline`.strip.split("\n").map { _1.split(" ", 2).last }
+    assert_equal ["updated", "init"], log
+  end
+
+  def test_pull
+    # Push a commit to remote then reset local behind it
+    write_file("remote.txt")
+    GT::Git.add_all
+    GT::Git.commit("remote commit")
+    GT::Git.push("main")
+    GT::Git.run("git reset --hard HEAD~1")
+    GT::Git.pull
+    log = `git log --oneline`.strip.split("\n").map { _1.split(" ", 2).last }
+    assert_includes log, "remote commit"
+  end
 end

@@ -3,7 +3,13 @@
 require_relative "commands/create"
 require_relative "commands/stack"
 require_relative "commands/restack"
-require_relative "commands/land"
+require_relative "commands/amend"
+require_relative "commands/sync"
+require_relative "commands/edit"
+require_relative "commands/up"
+require_relative "commands/down"
+require_relative "commands/top"
+require_relative "commands/switch"
 
 module GT
   module CLI
@@ -27,7 +33,13 @@ module GT
       when "create"  then GT::Commands::Create.run(argv)
       when "stack"   then GT::Commands::Stack.run(argv)
       when "restack" then GT::Commands::Restack.run(argv)
-      when "land"    then GT::Commands::Land.run(argv)
+      when "amend"   then GT::Commands::Amend.run(argv)
+      when "sync"    then GT::Commands::Sync.run(argv)
+      when "edit"    then GT::Commands::Edit.run(argv)
+      when "up"      then GT::Commands::Up.run(argv)
+      when "down"    then GT::Commands::Down.run(argv)
+      when "top"     then GT::Commands::Top.run(argv)
+      when "switch"  then GT::Commands::Switch.run(argv)
       else
         raise GT::UserError, "Unknown command: #{command}. Run `gt --help` for usage."
       end
@@ -47,7 +59,16 @@ module GT
           create <name> -m <message>   Create a new stacked branch and PR
           stack                        Show the current stack
           restack                      Rebase the stack onto updated parents
-          land                         Land the bottom PR and restack
+                                       (prompts to delete if bottom PR was merged)
+          amend                        Amend the current branch and restack
+          edit -m <message>            Edit the current branch's commit message and restack
+          sync                         Pull main and restack
+
+        Navigation:
+          up                           Move up one level in the stack
+          down                         Move down one level in the stack
+          top                          Jump to the top of the stack
+          switch                       Interactively select a branch in the stack
 
         Options for restack:
           --continue                   Continue after resolving conflicts

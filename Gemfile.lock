@@ -1,3 +1,10 @@
+PATH
+  remote: .
+  specs:
+    gt (0.1.0)
+      cli-ui (~> 2.7)
+      rake
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -5,6 +12,7 @@ GEM
     base64 (0.3.0)
     benchmark (0.5.0)
     bigdecimal (4.0.1)
+    cli-ui (2.7.0)
     docile (1.4.1)
     imagen (0.2.0)
       parser (>= 2.5, != 2.5.1.1)
@@ -37,8 +45,8 @@ PLATFORMS
 
 DEPENDENCIES
   benchmark
+  gt!
   minitest (~> 5.25)
-  rake
   simplecov
   undercover
 
@@ -47,7 +55,9 @@ CHECKSUMS
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
   benchmark (0.5.0) sha256=465df122341aedcb81a2a24b4d3bd19b6c67c1530713fd533f3ff034e419236c
   bigdecimal (4.0.1) sha256=8b07d3d065a9f921c80ceaea7c9d4ae596697295b584c296fe599dd0ad01c4a7
+  cli-ui (2.7.0) sha256=e36147f2e8088796b996f0560f577bd1599f2b6aa3c374fe09fff59af5589c35
   docile (1.4.1) sha256=96159be799bfa73cdb721b840e9802126e4e03dfc26863db73647204c727f21e
+  gt (0.1.0)
   imagen (0.2.0) sha256=369fe912078877dba92615ebfc6f35a7d833e31f24f47bdd3ad5371a4139e24b
   minitest (5.27.0) sha256=2d3b17f8a36fe7801c1adcffdbc38233b938eb0b4966e97a6739055a45fa77d5
   parser (3.3.10.2) sha256=6f60c84aa4bdcedb6d1a2434b738fe8a8136807b6adc8f7f53b97da9bc4e9357
@@ -59,9 +69,6 @@ CHECKSUMS
   simplecov-html (0.13.2) sha256=bd0b8e54e7c2d7685927e8d6286466359b6f16b18cb0df47b508e8d73c777246
   simplecov_json_formatter (0.1.4) sha256=529418fbe8de1713ac2b2d612aa3daa56d316975d307244399fa4838c601b428
   undercover (0.8.4) sha256=99a6df93a6bb2c8d06e701df5fdb3be9411f50eae3f9f9e1d67672176258d09c
-
-RUBY VERSION
-  ruby 4.0.1
 
 BUNDLED WITH
   4.0.5

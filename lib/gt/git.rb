@@ -91,6 +91,22 @@ module GT
       config_unset("branch.#{branch}.gt-fork-point")
     end
 
+    def main_branch
+      config_get("gt.main-branch") || "main"
+    end
+
+    def pull
+      run("git pull")
+    end
+
+    def amend(message: nil)
+      if message
+        run("git commit --amend -m #{Shellwords.escape(message)}")
+      else
+        run("git commit --amend --no-edit")
+      end
+    end
+
     def all_branches
       out, _, _ = Open3.capture3("git", "branch")
       out.strip.split("\n").map { |b| b.delete_prefix("* ").strip }
