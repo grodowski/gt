@@ -56,4 +56,33 @@ class CreateTest < Minitest::Test
   def test_raises_without_message_value
     assert_raises(GT::UserError) { GT::Commands::Create.run(["my-feature", "-m"]) }
   end
+
+  def test_patch_flag_calls_add_patch
+    write_file("feature.txt", "work")
+    patched = false
+    # Stub add_patch to record the call and still stage (so commit succeeds)
+    GT::Git.stub(:add_patch, -> { patched = true; system("git add -A", out: File::NULL, err: File::NULL) }) do
+      capture_io do
+        GT::Commands::Create.stub(:system, true) do
+          GT::Commands::Create.run(["my-feature", "-m", "msg", "-p"])
+        end
+      end
+    end
+    assert patched
+  end
+
+  def test_patch_flag_skips_add_all
+    write_file("feature.txt", "work")
+    all_called = false
+    GT::Git.stub(:add_patch, -> { system("git add -A", out: File::NULL, err: File::NULL) }) do
+      GT::Git.stub(:add_all, -> { all_called = true }) do
+        capture_io do
+          GT::Commands::Create.stub(:system, true) do
+            GT::Commands::Create.run(["my-feature", "-m", "msg", "-p"])
+          end
+        end
+      end
+    end
+    refute all_called
+  end
 end

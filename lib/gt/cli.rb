@@ -1,15 +1,14 @@
 # frozen_string_literal: true
 
 require_relative "commands/create"
-require_relative "commands/stack"
+require_relative "commands/log"
 require_relative "commands/restack"
-require_relative "commands/amend"
+require_relative "commands/modify"
 require_relative "commands/sync"
-require_relative "commands/edit"
+require_relative "commands/checkout"
 require_relative "commands/up"
 require_relative "commands/down"
 require_relative "commands/top"
-require_relative "commands/switch"
 
 module GT
   module CLI
@@ -30,16 +29,15 @@ module GT
       end
 
       case command
-      when "create"  then GT::Commands::Create.run(argv)
-      when "stack"   then GT::Commands::Stack.run(argv)
-      when "restack" then GT::Commands::Restack.run(argv)
-      when "amend"   then GT::Commands::Amend.run(argv)
-      when "sync"    then GT::Commands::Sync.run(argv)
-      when "edit"    then GT::Commands::Edit.run(argv)
-      when "up"      then GT::Commands::Up.run(argv)
-      when "down"    then GT::Commands::Down.run(argv)
-      when "top"     then GT::Commands::Top.run(argv)
-      when "switch"  then GT::Commands::Switch.run(argv)
+      when "create"          then GT::Commands::Create.run(argv)
+      when "log", "ls"       then GT::Commands::Log.run(argv)
+      when "restack"         then GT::Commands::Restack.run(argv)
+      when "modify", "m"     then GT::Commands::Modify.run(argv)
+      when "sync"            then GT::Commands::Sync.run(argv)
+      when "checkout", "co"  then GT::Commands::Checkout.run(argv)
+      when "up"              then GT::Commands::Up.run(argv)
+      when "down"            then GT::Commands::Down.run(argv)
+      when "top"             then GT::Commands::Top.run(argv)
       else
         raise GT::UserError, "Unknown command: #{command}. Run `gt --help` for usage."
       end
@@ -56,19 +54,18 @@ module GT
         Usage: gt <command> [options]
 
         Commands:
-          create <name> -m <message>   Create a new stacked branch and PR
-          stack                        Show the current stack
+          create <name> -m <msg> [-p]  Create a new stacked branch and PR
+          log (ls)                     Show the current stack
           restack                      Rebase the stack onto updated parents
                                        (prompts to delete if bottom PR was merged)
-          amend                        Amend the current branch and restack
-          edit -m <message>            Edit the current branch's commit message and restack
+          modify (m) [-m <msg>] [-p]   Amend the current branch and restack
           sync                         Pull main and restack
 
         Navigation:
           up                           Move up one level in the stack
           down                         Move down one level in the stack
           top                          Jump to the top of the stack
-          switch                       Interactively select a branch in the stack
+          checkout (co) [branch]       Switch to a branch in the stack
 
         Options for restack:
           --continue                   Continue after resolving conflicts

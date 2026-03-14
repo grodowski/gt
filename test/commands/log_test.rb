@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class StackTest < Minitest::Test
+class LogTest < Minitest::Test
   include GitSandbox
 
   def create_branch(name, message)

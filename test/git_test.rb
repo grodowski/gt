@@ -147,6 +147,14 @@ class GitTest < Minitest::Test
     assert_equal ["updated", "init"], log
   end
 
+  def test_add_patch_invokes_system
+    invoked_cmd = nil
+    GT::Git.stub(:system, ->(cmd) { invoked_cmd = cmd; true }) do
+      GT::Git.add_patch
+    end
+    assert_equal "git add --patch", invoked_cmd
+  end
+
   def test_pull
     # Push a commit to remote then reset local behind it
     write_file("remote.txt")

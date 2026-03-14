@@ -2,7 +2,7 @@
 
 module GT
   module Commands
-    class Stack
+    class Log
       def self.run(_argv)
         GT::Stack.print
       end

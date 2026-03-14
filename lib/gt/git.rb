@@ -23,6 +23,10 @@ module GT
       run("git add -A")
     end
 
+    def add_patch
+      system("git add --patch")
+    end
+
     def commit(message)
       run("git commit -m #{Shellwords.escape(message)}")
     end

@@ -15,14 +15,18 @@ class CLITest < Minitest::Test
     capture_io { assert_raises(SystemExit) { GT::CLI.run(["create"]) } }
   end
 
-  def test_stack_dispatches
-    capture_io { GT::CLI.run(["stack"]) }
+  def test_log_dispatches
+    capture_io { GT::CLI.run(["log"]) }
+  end
+
+  def test_ls_dispatches
+    capture_io { GT::CLI.run(["ls"]) }
   end
 
   def test_git_error_exits_2
     GT::State.stub(:new, -> { raise GT::GitError, "broken" }) do
       ex = nil
-      capture_io { ex = assert_raises(SystemExit) { GT::CLI.run(["stack"]) } }
+      capture_io { ex = assert_raises(SystemExit) { GT::CLI.run(["log"]) } }
       assert_equal 2, ex.status
     end
   end
@@ -30,7 +34,7 @@ class CLITest < Minitest::Test
   def test_restack_blocked_when_state_active
     GT::State.new.save(branches: ["feature"], index: 0)
     ex = nil
-    capture_io { ex = assert_raises(SystemExit) { GT::CLI.run(["stack"]) } }
+    capture_io { ex = assert_raises(SystemExit) { GT::CLI.run(["log"]) } }
     assert_equal 1, ex.status
   end
 
@@ -41,8 +45,12 @@ class CLITest < Minitest::Test
     end
   end
 
-  def test_amend_dispatches
-    capture_io { assert_raises(SystemExit) { GT::CLI.run(["amend"]) } }
+  def test_modify_dispatches
+    capture_io { assert_raises(SystemExit) { GT::CLI.run(["modify"]) } }
+  end
+
+  def test_m_alias_dispatches
+    capture_io { assert_raises(SystemExit) { GT::CLI.run(["m"]) } }
   end
 
   def test_sync_dispatches
@@ -51,10 +59,6 @@ class CLITest < Minitest::Test
         capture_io { GT::CLI.run(["sync"]) }
       end
     end
-  end
-
-  def test_edit_dispatches
-    capture_io { assert_raises(SystemExit) { GT::CLI.run(["edit"]) } }
   end
 
   def test_up_dispatches
@@ -70,8 +74,12 @@ class CLITest < Minitest::Test
     assert_match "Already at the top", out
   end
 
-  def test_switch_dispatches
-    capture_io { assert_raises(SystemExit) { GT::CLI.run(["switch"]) } }
+  def test_checkout_dispatches
+    capture_io { assert_raises(SystemExit) { GT::CLI.run(["checkout"]) } }
+  end
+
+  def test_co_alias_dispatches
+    capture_io { assert_raises(SystemExit) { GT::CLI.run(["co"]) } }
   end
 
   def test_help_flag

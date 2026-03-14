@@ -89,26 +89,4 @@ class NavigationTest < Minitest::Test
     assert_raises(GT::UserError) { GT::Commands::Top.run([]) }
   end
 
-  # ── gt switch ──────────────────────────────────────────────────────────────
-
-  def test_switch_checks_out_selected_branch
-    GT::UI.stub(:prompt_select, "feature") do
-      GT::Commands::Switch.run([])
-    end
-    assert_equal "feature", GT::Git.current_branch
-  end
-
-  def test_switch_stays_when_current_selected
-    GT::UI.stub(:prompt_select, "child") do
-      GT::Commands::Switch.run([])
-    end
-    assert_equal "child", GT::Git.current_branch
-  end
-
-  def test_switch_raises_when_no_stack
-    GT::Git.checkout("main")
-    GT::Git.run("git branch -D feature") rescue nil
-    GT::Git.run("git branch -D child") rescue nil
-    assert_raises(GT::UserError) { GT::Commands::Switch.run([]) }
-  end
 end
