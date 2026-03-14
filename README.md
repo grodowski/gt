@@ -39,7 +39,7 @@ gt create profile -m "add profile page"
 gt create settings -m "add settings"
 
 # 4. See the stack
-gt stack
+gt log
 # main
 #   └─ auth
 #      └─ profile
@@ -62,24 +62,27 @@ Each `gt create` stages all current changes, creates a new branch from the curre
 
 ## Commands
 
-### `gt create <name> -m <message>`
+### `gt create <name> -m <message> [-p]`
 
 Stage all changes, create a new branch, commit, push, and open a PR.
 
 ```sh
 gt create my-feature -m "add new endpoint"
+
+# Stage interactively (select hunks with git add --patch):
+gt create my-feature -m "add new endpoint" -p
 ```
 
 The parent branch and fork-point are stored in git config so `gt` can rebase correctly later.
 
 ---
 
-### `gt stack`
+### `gt log` / `gt ls`
 
 Display the current stack. The current branch is marked with `*`.
 
 ```sh
-gt stack
+gt log
 # main
 #   └─ feature-a
 #      └─ feature-b *
@@ -112,23 +115,22 @@ gt restack --abort
 
 ---
 
-### `gt amend`
+### `gt modify` / `gt m` `[-m <message>] [-p]`
 
-Stage all working-tree changes, amend the current branch's commit, force-push, and restack.
-
-```sh
-# Made a fix on feature-a? Just:
-gt amend
-```
-
----
-
-### `gt edit -m <message>`
-
-Change the current branch's commit message, force-push, and restack.
+Amend the current branch's commit, force-push, and restack.
 
 ```sh
-gt edit -m "better commit message"
+# Stage all changes and amend:
+gt modify
+
+# Change the commit message only:
+gt modify -m "better commit message"
+
+# Stage interactively, then amend:
+gt modify -p
+
+# Stage interactively and change the message:
+gt modify -p -m "better commit message"
 ```
 
 ---
@@ -148,10 +150,11 @@ gt sync
 Move between branches in the stack without looking up branch names:
 
 ```sh
-gt up      # move one level up (toward the tip)
-gt down    # move one level down (toward main)
-gt top     # jump to the tip of the stack
-gt switch  # interactive picker — select any branch in the stack
+gt up                # move one level up (toward the tip)
+gt down              # move one level down (toward main)
+gt top               # jump to the tip of the stack
+gt checkout [branch] # switch to a branch (interactive picker if no arg)
+gt co feature-a      # shorthand
 ```
 
 ---
