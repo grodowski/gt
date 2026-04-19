@@ -39,7 +39,7 @@ module GT
 
     def self.print(from: GT::Git.current_branch, output: $stdout)
       current = GT::Git.current_branch
-      branches = build(from: from)
+      branches = build_all
       branches.each_with_index do |branch, i|
         prefix = i == 0 ? "" : ("  " * i) + "└─ "
         if branch == current

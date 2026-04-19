@@ -1,6 +1,8 @@
+require_relative "lib/gt/version"
+
 Gem::Specification.new do |spec|
   spec.name          = "gt-cli"
-  spec.version       = "0.1.0"
+  spec.version       = GT::VERSION
   spec.authors       = ["Jan Grodowski"]
   spec.email         = ["jgrodowski@gmail.com"]
   spec.summary       = "Lightweight CLI for managing stacked pull requests"

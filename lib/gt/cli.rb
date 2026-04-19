@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "version"
 require_relative "commands/create"
 require_relative "commands/log"
 require_relative "commands/restack"
@@ -26,6 +27,11 @@ module GT
 
       if command.nil? || command == "--help" || command == "-h"
         puts usage
+        return
+      end
+
+      if command == "--version" || command == "-v" || command == "version"
+        puts "gt version #{GT::VERSION}"
         return
       end
 

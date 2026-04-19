@@ -26,7 +26,7 @@ module GT
         return if branches.length < 2
 
         bottom = branches[1]
-        return unless GT::GitHub.pr_merged?(bottom) || GT::Git.ancestor?(bottom, branches[0])
+        return unless GT::GitHub.pr_merged?(bottom)
 
         return unless GT::UI.confirm("PR '#{bottom}' was merged. Delete branch and restack?")
 
@@ -101,10 +101,10 @@ module GT
         end
 
         state.clear
+        GT::UI.spinner("Updating stack comments") do
+          GT::GitHub.update_stack_comments(branches)
+        end
         if any_pushed
-          GT::UI.spinner("Updating stack comments") do
-            GT::GitHub.update_stack_comments(branches)
-          end
           GT::UI.success("Restack complete.")
         else
           GT::UI.info("Already up to date.")
