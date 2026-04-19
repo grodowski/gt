@@ -14,19 +14,17 @@ module GT
       branches
     end
 
-    # Build the full linear stack from root down, scanning all local branches.
-    # Returns [root, child, grandchild, ...] regardless of current branch.
-    def self.build_all
+    # Build the full linear stack containing `from`, from root to tip.
+    # Walks UP from `from` to find the root, then DOWN to find any children.
+    def self.build_all(from: GT::Git.current_branch)
       all = GT::Git.all_branches
       managed = all.select { |b| GT::Git.gt_parent(b) }
-      return [GT::Git.current_branch] if managed.empty?
+      return [from] if managed.empty?
 
-      # Walk from any managed branch up to find root
-      root = GT::Git.gt_parent(managed.first)
-      root = GT::Git.gt_parent(root) while GT::Git.gt_parent(root)
+      # Walk UP from `from` to root (reuse build)
+      result = build(from: managed.include?(from) ? from : managed.first)
 
-      # Walk down from root following parent pointers
-      result = [root]
+      # Walk DOWN from the tip following child pointers
       loop do
         child = managed.find { |b| GT::Git.gt_parent(b) == result.last }
         break unless child
