@@ -4,8 +4,6 @@ PATH
     gt-cli (0.1.0)
       cli-ui (~> 2.7)
       rake
-      readline-ext
-      reline
 
 GEM
   remote: https://rubygems.org/
@@ -54,6 +52,8 @@ DEPENDENCIES
   benchmark
   gt-cli!
   minitest (~> 5.25)
+  readline-ext
+  reline
   simplecov
   undercover
 

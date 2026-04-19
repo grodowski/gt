@@ -14,6 +14,4 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rake"
   spec.add_dependency "cli-ui", "~> 2.7"
-  spec.add_dependency "readline-ext" if RUBY_VERSION >= "4.0"
-  spec.add_dependency "reline" if RUBY_VERSION >= "4.0"
 end
