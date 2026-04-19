@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2 (2026-04-19)
+
+### Bug fixes
+
+- **restack/sync**: return to original branch after restack instead of landing on the top of the stack.
+- **restack/sync**: middle branches not pushed when local SHA diverges from remote (e.g. after a manual branch restore). Now compares local vs `origin/<branch>` instead of before/after rebase.
+
 ## 0.1.1 (2026-04-19)
 
 ### Bug fixes
