@@ -10,7 +10,9 @@ class ModifyTest < Minitest::Test
     write_file("feature.txt")
     capture_io do
       GT::Commands::Create.stub(:system, true) do
-        GT::Commands::Create.run(["feature", "-m", "F"])
+        GT::UI.stub(:confirm, true) do
+          GT::Commands::Create.run(["feature", "-m", "F"])
+        end
       end
     end
   end

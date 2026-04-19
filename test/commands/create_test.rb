@@ -8,7 +8,9 @@ class CreateTest < Minitest::Test
   def create(name, message)
     capture_io do
       GT::Commands::Create.stub(:system, true) do
-        GT::Commands::Create.run([name, "-m", message])
+        GT::UI.stub(:confirm, true) do
+          GT::Commands::Create.run([name, "-m", message])
+        end
       end
     end
   end
@@ -49,18 +51,56 @@ class CreateTest < Minitest::Test
     assert_raises(GT::UserError) { GT::Commands::Create.run([]) }
   end
 
-  def test_raises_without_message_flag
-    assert_raises(GT::UserError) { GT::Commands::Create.run(["my-feature"]) }
+  def test_defaults_message_to_branch_name
+    write_file("feature.txt", "work")
+    GT::UI.stub(:confirm, true) do
+      capture_io do
+        GT::Commands::Create.stub(:system, true) do
+          GT::Commands::Create.run(["my-feature"])
+        end
+      end
+    end
+    log = `git log --oneline`.strip.split("\n").map { _1.split(" ", 2).last }
+    assert_equal ["my-feature", "init"], log
   end
 
   def test_raises_without_message_value
     assert_raises(GT::UserError) { GT::Commands::Create.run(["my-feature", "-m"]) }
   end
 
+  def test_untracked_files_are_prompted
+    write_file("feature.txt", "work")
+    write_file("other.txt", "other")
+    confirmed = []
+    GT::UI.stub(:confirm, ->(msg) { confirmed << msg; true }) do
+      capture_io do
+        GT::Commands::Create.stub(:system, true) do
+          GT::Commands::Create.run(["my-feature", "-m", "msg"])
+        end
+      end
+    end
+    assert confirmed.any? { |m| m.include?("feature.txt") }
+    assert confirmed.any? { |m| m.include?("other.txt") }
+  end
+
+  def test_declined_untracked_file_not_staged
+    write_file("wanted.txt", "yes")
+    write_file("unwanted.txt", "no")
+    GT::UI.stub(:confirm, ->(msg) { msg.include?("wanted.txt") && !msg.include?("unwanted") }) do
+      capture_io do
+        GT::Commands::Create.stub(:system, true) do
+          GT::Commands::Create.run(["my-feature", "-m", "msg"])
+        end
+      end
+    end
+    files = `git show --name-only HEAD`.strip.split("\n")
+    assert_includes files, "wanted.txt"
+    refute_includes files, "unwanted.txt"
+  end
+
   def test_patch_flag_calls_add_patch
     write_file("feature.txt", "work")
     patched = false
-    # Stub add_patch to record the call and still stage (so commit succeeds)
     GT::Git.stub(:add_patch, -> { patched = true; system("git add -A", out: File::NULL, err: File::NULL) }) do
       capture_io do
         GT::Commands::Create.stub(:system, true) do
@@ -71,11 +111,11 @@ class CreateTest < Minitest::Test
     assert patched
   end
 
-  def test_patch_flag_skips_add_all
+  def test_patch_flag_skips_untracked_prompts
     write_file("feature.txt", "work")
-    all_called = false
+    confirmed = false
     GT::Git.stub(:add_patch, -> { system("git add -A", out: File::NULL, err: File::NULL) }) do
-      GT::Git.stub(:add_all, -> { all_called = true }) do
+      GT::UI.stub(:confirm, -> (_) { confirmed = true }) do
         capture_io do
           GT::Commands::Create.stub(:system, true) do
             GT::Commands::Create.run(["my-feature", "-m", "msg", "-p"])
@@ -83,6 +123,6 @@ class CreateTest < Minitest::Test
         end
       end
     end
-    refute all_called
+    refute confirmed
   end
 end

@@ -13,10 +13,7 @@ A lightweight CLI for managing stacked pull requests on GitHub. Stacked PRs let 
 ## Installation
 
 ```sh
-git clone https://github.com/yourname/gt
-cd gt
-bundle install
-ln -s $(pwd)/bin/gt /usr/local/bin/gt
+gem install gt-cli
 ```
 
 ## Quick start
@@ -155,6 +152,71 @@ gt down              # move one level down (toward main)
 gt top               # jump to the tip of the stack
 gt checkout [branch] # switch to a branch (interactive picker if no arg)
 gt co feature-a      # shorthand
+```
+
+---
+
+## Recipes
+
+### Multiple commits per branch
+
+`gt create` makes the first commit, but you can keep adding commits to the branch normally. `gt restack` replays all of them when rebasing.
+
+```sh
+gt create feature-a -m "initial scaffold"
+
+# keep working on the same branch
+git add .
+git commit -m "fix edge case"
+git commit -m "add tests"
+git push origin feature-a
+
+# child branches still stack and restack correctly
+gt create feature-b -m "build on top"
+gt restack
+```
+
+> `gt modify` amends the tip commit only. For multi-commit branches, use `git commit --amend` or `git rebase -i` directly, then `git push --force-with-lease` and `gt restack`.
+
+---
+
+### Split existing changes into multiple PRs
+
+**From uncommitted changes** — stash everything, then slice with `-p`:
+
+```sh
+git stash
+gt create feature-a -m "add auth" -p      # pick hunks for PR 1
+gt create feature-b -m "add profile" -p   # pick hunks for PR 2
+gt create feature-c -m "add settings" -p  # pick remaining hunks
+git stash drop
+```
+
+If the branch already has an open PR, close it first:
+
+```sh
+gh pr close feature --comment "Splitting into smaller PRs"
+```
+
+**From a single large commit** — reset to unstage, then re-slice:
+
+```sh
+git reset main              # unstage all commits, keep working tree
+git checkout main
+gt create feature-a -m "add auth" -p
+gt create feature-b -m "add profile" -p
+```
+
+**From separate commits** — cherry-pick each onto its own branch:
+
+```sh
+git log --oneline main..feature   # C1, C2, C3
+
+git checkout main
+gt create feature-a -m "add auth"    # cherry-pick / restage C1
+gt create feature-b -m "add profile" # C2
+gt create feature-c -m "add settings"# C3
+git branch -D feature
 ```
 
 ---

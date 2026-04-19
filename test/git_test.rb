@@ -166,4 +166,18 @@ class GitTest < Minitest::Test
     log = `git log --oneline`.strip.split("\n").map { _1.split(" ", 2).last }
     assert_includes log, "remote commit"
   end
+
+  def test_untracked_files_returns_empty_on_failure
+    Open3.stub(:capture3, ->(*_) { [+"", +"err", double_status(false)] }) do
+      assert_equal [], GT::Git.untracked_files
+    end
+  end
+
+  private
+
+  def double_status(success)
+    status = Object.new
+    status.define_singleton_method(:success?) { success }
+    status
+  end
 end

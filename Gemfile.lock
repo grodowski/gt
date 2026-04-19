@@ -1,9 +1,11 @@
 PATH
   remote: .
   specs:
-    gt (0.1.0)
+    gt-cli (0.1.0)
       cli-ui (~> 2.7)
       rake
+      readline-ext
+      reline
 
 GEM
   remote: https://rubygems.org/
@@ -16,6 +18,7 @@ GEM
     docile (1.4.1)
     imagen (0.2.0)
       parser (>= 2.5, != 2.5.1.1)
+    io-console (0.8.2)
     minitest (5.27.0)
     parser (3.3.10.2)
       ast (~> 2.4.1)
@@ -23,6 +26,9 @@ GEM
     racc (1.8.1)
     rainbow (3.1.1)
     rake (13.3.1)
+    readline-ext (0.2.0)
+    reline (0.6.3)
+      io-console (~> 0.5)
     rugged (1.9.0)
     simplecov (0.22.0)
       docile (~> 1.1)
@@ -45,7 +51,7 @@ PLATFORMS
 
 DEPENDENCIES
   benchmark
-  gt!
+  gt-cli!
   minitest (~> 5.25)
   simplecov
   undercover
@@ -57,13 +63,16 @@ CHECKSUMS
   bigdecimal (4.0.1) sha256=8b07d3d065a9f921c80ceaea7c9d4ae596697295b584c296fe599dd0ad01c4a7
   cli-ui (2.7.0) sha256=e36147f2e8088796b996f0560f577bd1599f2b6aa3c374fe09fff59af5589c35
   docile (1.4.1) sha256=96159be799bfa73cdb721b840e9802126e4e03dfc26863db73647204c727f21e
-  gt (0.1.0)
+  gt-cli (0.1.0)
   imagen (0.2.0) sha256=369fe912078877dba92615ebfc6f35a7d833e31f24f47bdd3ad5371a4139e24b
+  io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
   minitest (5.27.0) sha256=2d3b17f8a36fe7801c1adcffdbc38233b938eb0b4966e97a6739055a45fa77d5
   parser (3.3.10.2) sha256=6f60c84aa4bdcedb6d1a2434b738fe8a8136807b6adc8f7f53b97da9bc4e9357
   racc (1.8.1) sha256=4a7f6929691dbec8b5209a0b373bc2614882b55fc5d2e447a21aaa691303d62f
   rainbow (3.1.1) sha256=039491aa3a89f42efa1d6dec2fc4e62ede96eb6acd95e52f1ad581182b79bc6a
   rake (13.3.1) sha256=8c9e89d09f66a26a01264e7e3480ec0607f0c497a861ef16063604b1b08eb19c
+  readline-ext (0.2.0) sha256=490ad4a5534243c554b05db6f2dd364c61aea4759fa7613692a5e5c74ec3eaa8
+  reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835
   rugged (1.9.0) sha256=7faaa912c5888d6e348d20fa31209b6409f1574346b1b80e309dbc7e8d63efac
   simplecov (0.22.0) sha256=fe2622c7834ff23b98066bb0a854284b2729a569ac659f82621fc22ef36213a5
   simplecov-html (0.13.2) sha256=bd0b8e54e7c2d7685927e8d6286466359b6f16b18cb0df47b508e8d73c777246

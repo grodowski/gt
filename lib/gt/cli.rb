@@ -14,12 +14,23 @@ module GT
   module CLI
     RESTACK_ONLY = %w[restack].freeze
 
+    def self.gh_installed?
+      _, _, status = Open3.capture3("gh --version")
+      status.success?
+    rescue Errno::ENOENT
+      false
+    end
+
     def self.run(argv)
       command = argv.shift
 
       if command.nil? || command == "--help" || command == "-h"
         puts usage
         return
+      end
+
+      unless gh_installed?
+        raise GT::UserError, "GitHub CLI (gh) is required but not found. Install it at https://cli.github.com/"
       end
 
       state = GT::State.new
@@ -54,7 +65,7 @@ module GT
         Usage: gt <command> [options]
 
         Commands:
-          create <name> -m <msg> [-p]  Create a new stacked branch and PR
+          create <name> [-m <msg>] [-p] Create a new stacked branch and PR
           log (ls)                     Show the current stack
           restack                      Rebase the stack onto updated parents
                                        (prompts to delete if bottom PR was merged)

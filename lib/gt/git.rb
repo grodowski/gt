@@ -23,6 +23,21 @@ module GT
       run("git add -A")
     end
 
+    def add_tracked
+      run("git add -u")
+    end
+
+    def add_file(path)
+      run("git add -- #{Shellwords.escape(path)}")
+    end
+
+    def untracked_files
+      out, _, status = Open3.capture3("git ls-files --others --exclude-standard")
+      return [] unless status.success?
+
+      out.strip.split("\n").reject(&:empty?)
+    end
+
     def add_patch
       system("git add --patch")
     end
@@ -42,6 +57,11 @@ module GT
 
     def merge_base(a, b)
       run("git merge-base #{a} #{b}").strip
+    end
+
+    def ancestor?(branch, parent)
+      _, _, status = Open3.capture3("git merge-base --is-ancestor #{branch} #{parent}")
+      status.success?
     end
 
     def rebase_onto(new_base, fork_point, branch)

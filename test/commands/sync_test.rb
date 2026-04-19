@@ -10,7 +10,9 @@ class SyncTest < Minitest::Test
     write_file("feature.txt")
     capture_io do
       GT::Commands::Create.stub(:system, true) do
-        GT::Commands::Create.run(["feature", "-m", "F"])
+        GT::UI.stub(:confirm, true) do
+          GT::Commands::Create.run(["feature", "-m", "F"])
+        end
       end
     end
 
@@ -48,5 +50,19 @@ class SyncTest < Minitest::Test
       capture_io { GT::Commands::Sync.run([]) }
     end
     assert_equal "feature", GT::Git.current_branch
+  end
+
+  def test_sync_already_up_to_date_prints_message
+    GT::GitHub.stub(:pr_merged?, false) do
+      capture_io { GT::Commands::Sync.run([]) }  # pull once to get up to date
+      out, = capture_io { GT::Commands::Sync.run([]) }  # second sync is a no-op
+      assert_match "Already up to date", out
+    end
+  end
+
+  def test_sync_raises_when_main_branch_not_found
+    GT::Git.stub(:main_branch, "nonexistent") do
+      assert_raises(GT::UserError) { GT::Commands::Sync.run([]) }
+    end
   end
 end

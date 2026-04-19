@@ -7,6 +7,8 @@ SimpleCov.formatter = SimpleCov::Formatter::Undercover
 
 SimpleCov.start do
   add_filter(/^\/test\//)
+  add_filter("Rakefile")
+  track_files "lib/**/*.rb"
   enable_coverage(:branch)
 end
 

@@ -9,7 +9,9 @@ class LogTest < Minitest::Test
     write_file("#{name}.txt")
     capture_io do
       GT::Commands::Create.stub(:system, true) do
-        GT::Commands::Create.run([name, "-m", message])
+        GT::UI.stub(:confirm, true) do
+          GT::Commands::Create.run([name, "-m", message])
+        end
       end
     end
   end

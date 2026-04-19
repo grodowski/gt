@@ -9,7 +9,9 @@ class NavigationTest < Minitest::Test
     write_file("#{name}.txt")
     capture_io do
       GT::Commands::Create.stub(:system, true) do
-        GT::Commands::Create.run([name, "-m", message])
+        GT::UI.stub(:confirm, true) do
+          GT::Commands::Create.run([name, "-m", message])
+        end
       end
     end
   end
@@ -45,6 +47,12 @@ class NavigationTest < Minitest::Test
     assert_raises(GT::UserError) { GT::Commands::Up.run([]) }
   end
 
+  def test_up_no_stack_raises
+    GT::Stack.stub(:build_all, ["main"]) do
+      assert_raises(GT::UserError) { GT::Commands::Up.run([]) }
+    end
+  end
+
   # ── gt down ────────────────────────────────────────────────────────────────
 
   def test_down_moves_to_previous_branch
@@ -69,6 +77,12 @@ class NavigationTest < Minitest::Test
     assert_raises(GT::UserError) { GT::Commands::Down.run([]) }
   end
 
+  def test_down_no_stack_raises
+    GT::Stack.stub(:build_all, ["main"]) do
+      assert_raises(GT::UserError) { GT::Commands::Down.run([]) }
+    end
+  end
+
   # ── gt top ─────────────────────────────────────────────────────────────────
 
   def test_top_from_middle_jumps_to_top
@@ -87,6 +101,12 @@ class NavigationTest < Minitest::Test
     GT::Git.checkout("main")
     GT::Git.checkout("orphan", new_branch: true)
     assert_raises(GT::UserError) { GT::Commands::Top.run([]) }
+  end
+
+  def test_top_no_stack_raises
+    GT::Stack.stub(:build_all, ["main"]) do
+      assert_raises(GT::UserError) { GT::Commands::Top.run([]) }
+    end
   end
 
 end

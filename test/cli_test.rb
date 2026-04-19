@@ -5,6 +5,20 @@ require "test_helper"
 class CLITest < Minitest::Test
   include GitSandbox
 
+  def test_gh_not_installed_exits_1
+    GT::CLI.stub(:gh_installed?, false) do
+      ex = nil
+      capture_io { ex = assert_raises(SystemExit) { GT::CLI.run(["log"]) } }
+      assert_equal 1, ex.status
+    end
+  end
+
+  def test_gh_installed_returns_false_when_enoent
+    Open3.stub(:capture3, ->(*_) { raise Errno::ENOENT }) do
+      refute GT::CLI.gh_installed?
+    end
+  end
+
   def test_unknown_command_exits_1
     ex = nil
     capture_io { ex = assert_raises(SystemExit) { GT::CLI.run(["bogus"]) } }
@@ -39,8 +53,8 @@ class CLITest < Minitest::Test
   end
 
   def test_restack_allowed_when_state_active
-    GT::State.new.save(branches: ["feature"], index: 0)
-    GT::GitHub.stub(:pr_merged?, false) do
+    GT::State.new.save(branches: %w[main feature], index: 0)
+    GT::Commands::Restack.stub(:run, nil) do
       capture_io { GT::CLI.run(["restack"]) }
     end
   end
@@ -54,8 +68,8 @@ class CLITest < Minitest::Test
   end
 
   def test_sync_dispatches
-    GT::GitHub.stub(:pr_merged?, false) do
-      GT::Git.stub(:pull, nil) do
+    GT::Git.stub(:pull, nil) do
+      GT::Commands::Restack.stub(:run, nil) do
         capture_io { GT::CLI.run(["sync"]) }
       end
     end
@@ -70,8 +84,7 @@ class CLITest < Minitest::Test
   end
 
   def test_top_dispatches
-    out, = capture_io { GT::CLI.run(["top"]) }
-    assert_match "Already at the top", out
+    capture_io { assert_raises(SystemExit) { GT::CLI.run(["top"]) } }
   end
 
   def test_checkout_dispatches

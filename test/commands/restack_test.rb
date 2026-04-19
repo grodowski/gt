@@ -9,7 +9,9 @@ class RestackTest < Minitest::Test
     write_file("#{name}.txt")
     capture_io do
       GT::Commands::Create.stub(:system, true) do
-        GT::Commands::Create.run([name, "-m", message])
+        GT::UI.stub(:confirm, true) do
+          GT::Commands::Create.run([name, "-m", message])
+        end
       end
     end
   end
@@ -69,10 +71,24 @@ class RestackTest < Minitest::Test
     assert_raises(GT::UserError) { GT::Commands::Restack.run(["--continue"]) }
   end
 
+  def test_restack_raises_when_no_stack
+    GT::Stack.stub(:build_all, ["main"]) do
+      assert_raises(GT::UserError) { GT::Commands::Restack.run([]) }
+    end
+  end
+
   def test_complete_prints_message
     no_merged_prs do
       out, = capture_io { GT::Commands::Restack.run([]) }
       assert_match "Restack complete", out
+    end
+  end
+
+  def test_already_up_to_date_when_nothing_moved
+    no_merged_prs do
+      capture_io { GT::Commands::Restack.run([]) }  # first restack moves branches
+      out, = capture_io { GT::Commands::Restack.run([]) }  # second is a no-op
+      assert_match "Already up to date", out
     end
   end
 
@@ -87,6 +103,26 @@ class RestackTest < Minitest::Test
     end
     assert_match "feature", prompt_msg
     assert_match "merged", prompt_msg
+  end
+
+  def test_detects_locally_merged_branch
+    # Simulate merging feature into main locally (without GitHub PR)
+    GT::Git.checkout("main")
+    GT::Git.run("git merge feature --no-ff")
+    GT::Git.checkout("child")
+
+    GT::GitHub.stub(:pr_merged?, false) do
+      GT::GitHub.stub(:pr_retarget, true) do
+        GT::UI.stub(:confirm, true) do
+          capture_io { GT::Commands::Restack.run([]) }
+        end
+      end
+    end
+
+    # child should now be on main, feature deleted
+    refute_includes GT::Git.all_branches, "feature"
+    log = `git log --oneline`.strip.split("\n").map { _1.split(" ", 2).last }
+    assert_includes log, "main update"
   end
 
   def test_declines_deletion_skips_delete
