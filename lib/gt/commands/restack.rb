@@ -71,6 +71,7 @@ module GT
       end
 
       def self.restack_from(branches, start_index, state)
+        original_branch = GT::Git.current_branch
         any_pushed = false
         start_index.upto(branches.length - 1) do |i|
           branch = branches[i]
@@ -78,7 +79,6 @@ module GT
           fork_point = GT::Git.gt_fork_point(branch)
 
           GT::Git.checkout(branch)
-          sha_before = GT::Git.rev_parse(branch)
 
           begin
             GT::UI.spinner("Rebasing #{branch} onto #{parent}") do
@@ -94,12 +94,14 @@ module GT
           end
 
           GT::Git.set_gt_fork_point(branch, GT::Git.rev_parse(parent))
-          if GT::Git.rev_parse(branch) != sha_before
+          remote_sha = GT::Git.rev_parse("origin/#{branch}") rescue nil
+          if GT::Git.rev_parse(branch) != remote_sha
             any_pushed = true
             GT::UI.spinner("Pushing #{branch}") { GT::Git.push(branch, force: true) }
           end
         end
 
+        GT::Git.checkout(original_branch) if GT::Git.current_branch != original_branch
         state.clear
         GT::UI.spinner("Updating stack comments") do
           GT::GitHub.update_stack_comments(branches)
