@@ -104,4 +104,9 @@ class CLITest < Minitest::Test
     out, = capture_io { GT::CLI.run([]) }
     assert_match "Usage", out
   end
+
+  def test_version_flag
+    out, = capture_io { GT::CLI.run(["--version"]) }
+    assert_match GT::VERSION, out
+  end
 end

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gt-cli (0.1.1)
+    gt-cli (0.1.2)
       cli-ui (~> 2.7)
       rake
 
@@ -64,7 +64,7 @@ CHECKSUMS
   bigdecimal (4.0.1) sha256=8b07d3d065a9f921c80ceaea7c9d4ae596697295b584c296fe599dd0ad01c4a7
   cli-ui (2.7.0) sha256=e36147f2e8088796b996f0560f577bd1599f2b6aa3c374fe09fff59af5589c35
   docile (1.4.1) sha256=96159be799bfa73cdb721b840e9802126e4e03dfc26863db73647204c727f21e
-  gt-cli (0.1.1)
+  gt-cli (0.1.2)
   imagen (0.2.0) sha256=369fe912078877dba92615ebfc6f35a7d833e31f24f47bdd3ad5371a4139e24b
   io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
   minitest (5.27.0) sha256=2d3b17f8a36fe7801c1adcffdbc38233b938eb0b4966e97a6739055a45fa77d5
